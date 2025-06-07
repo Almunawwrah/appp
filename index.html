@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HandCursor Pro - Kontrol Kursor Sistem dengan Gesture</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">🎯</div>
+                    <h1>HandCursor Pro</h1>
+                    <span class="version">v2.1.0</span>
+                </div>
+                <div class="header-controls">
+                    <button class="btn btn--sm btn--outline" id="themeToggle">🌙 Dark</button>
+                    <div class="status-indicator" id="systemStatus">
+                        <div class="status-dot"></div>
+                        <span>Sistem Siap</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Primary Control Panel -->
+            <section class="primary-controls card">
+                <div class="card__header">
+                    <h3>🎮 Kontrol Utama</h3>
+                </div>
+                <div class="card__body">
+                    <div class="primary-controls-grid">
+                        <div class="control-button-group">
+                            <button class="btn btn--primary btn--lg" id="startCamera">
+                                📹 Mulai Kamera
+                            </button>
+                            <p class="control-description">Mulai deteksi gesture dengan kamera</p>
+                        </div>
+                        <div class="control-button-group">
+                            <button class="btn btn--secondary btn--lg" id="enableSystem" disabled>
+                                ⚡ Aktifkan Kontrol Sistem
+                            </button>
+                            <p class="control-description">Aktifkan kontrol kursor sistem-wide</p>
+                        </div>
+                        <div class="control-button-group">
+                            <button class="btn btn--outline btn--lg" id="calibrateSystem">
+                                🎯 Kalibrasi Gesture
+                            </button>
+                            <p class="control-description">Atur sensitivitas dan akurasi</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Camera Feed and Status -->
+            <div class="dual-panel">
+                <!-- Camera Feed -->
+                <section class="camera-section card">
+                    <div class="card__header">
+                        <h3>📷 Feed Kamera & Deteksi Gesture</h3>
+                        <div class="camera-info">
+                            <span class="camera-status" id="cameraStatus">📴 Offline</span>
+                            <span id="cameraResolution">1280x720</span>
+                            <span id="fpsCounter">0 FPS</span>
+                        </div>
+                    </div>
+                    <div class="card__body">
+                        <div class="camera-container" id="cameraContainer">
+                            <div class="camera-placeholder" id="cameraPlaceholder">
+                                <div class="camera-icon">📷</div>
+                                <h4>Kamera Belum Aktif</h4>
+                                <p>Klik "Mulai Kamera" di panel kontrol utama untuk memulai deteksi gesture tangan</p>
+                                <div class="camera-requirements">
+                                    <p><strong>Requirements:</strong></p>
+                                    <ul>
+                                        <li>✅ MediaPipe Hands v0.10.9</li>
+                                        <li>✅ OpenCV v4.8.0</li>
+                                        <li>✅ Camera Permission</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <canvas id="cameraCanvas" width="640" height="480" style="display: none;"></canvas>
+                            <div class="gesture-overlay" id="gestureOverlay">
+                                <div class="gesture-info" id="gestureInfo" style="display: none;">
+                                    <div class="current-gesture">Gesture: <span id="currentGesture">Tidak terdeteksi</span></div>
+                                    <div class="gesture-confidence">Confidence: <span id="gestureConfidence">0%</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Status Dashboard -->
+                <section class="status-dashboard card">
+                    <div class="card__header">
+                        <h3>📊 Status Dashboard</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="gesture-status" id="gestureStatus">
+                            <!-- Gesture statuses will be populated by JavaScript -->
+                        </div>
+                        
+                        <div class="performance-metrics">
+                            <h4>Performa Sistem</h4>
+                            <div class="metrics-grid">
+                                <div class="metric">
+                                    <span class="metric-label">Latensi</span>
+                                    <span class="metric-value" id="latency">--</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">CPU</span>
+                                    <span class="metric-value" id="cpuUsage">--</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Memori</span>
+                                    <span class="metric-value" id="memoryUsage">--</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Akurasi</span>
+                                    <span class="metric-value" id="accuracy">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="system-components">
+                            <h4>Komponen Sistem</h4>
+                            <div class="components-list" id="componentsList">
+                                <!-- Components will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Advanced Settings Panel -->
+            <section class="settings-panel card">
+                <div class="card__header">
+                    <h3>⚙️ Pengaturan Lanjutan</h3>
+                </div>
+                <div class="card__body">
+                    <div class="settings-tabs">
+                        <button class="tab-btn active" data-tab="gestures">Gesture</button>
+                        <button class="tab-btn" data-tab="calibration">Kalibrasi</button>
+                        <button class="tab-btn" data-tab="hotkeys">Hotkey</button>
+                        <button class="tab-btn" data-tab="system">Sistem</button>
+                    </div>
+                    
+                    <div class="tab-content active" id="gestures">
+                        <div class="gesture-config">
+                            <div class="gesture-item">
+                                <span>Gerakan Kursor</span>
+                                <select class="form-control">
+                                    <option selected>Index Finger Tracking</option>
+                                    <option>Palm Center</option>
+                                </select>
+                            </div>
+                            <div class="gesture-item">
+                                <span>Klik Kiri</span>
+                                <select class="form-control">
+                                    <option selected>Thumb + Index Pinch</option>
+                                    <option>Index Tap</option>
+                                </select>
+                            </div>
+                            <div class="gesture-item">
+                                <span>Klik Kanan</span>
+                                <select class="form-control">
+                                    <option selected>Thumb + Middle Pinch</option>
+                                    <option>Two Finger Tap</option>
+                                </select>
+                            </div>
+                            <div class="gesture-item">
+                                <span>Scroll</span>
+                                <select class="form-control">
+                                    <option selected>Two Finger Vertical</option>
+                                    <option>Palm Gesture</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="calibration">
+                        <div class="calibration-section">
+                            <h4>Sensitivitas</h4>
+                            <div class="control-grid">
+                                <div class="control-group">
+                                    <label class="form-label">Sensitivitas Kursor</label>
+                                    <input type="range" class="sensitivity-slider" id="cursorSensitivity" min="0.1" max="3" step="0.1" value="1.5">
+                                    <span class="sensitivity-value">1.5x</span>
+                                </div>
+                                <div class="control-group">
+                                    <label class="form-label">Threshold Gesture</label>
+                                    <input type="range" class="sensitivity-slider" id="gestureThreshold" min="0.5" max="0.95" step="0.05" value="0.8">
+                                    <span class="sensitivity-value">0.8</span>
+                                </div>
+                                <div class="control-group">
+                                    <label class="form-label">Smoothing</label>
+                                    <input type="range" class="sensitivity-slider" id="smoothing" min="0" max="1" step="0.1" value="0.7">
+                                    <span class="sensitivity-value">0.7</span>
+                                </div>
+                            </div>
+                            <div class="calibration-actions">
+                                <button class="btn btn--outline">📐 Kalibrasi Area Layar</button>
+                                <button class="btn btn--outline">🎯 Test Akurasi</button>
+                                <button class="btn btn--outline">🔄 Reset ke Default</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="hotkeys">
+                        <div class="hotkey-config">
+                            <div class="hotkey-item">
+                                <span>Toggle Aktif/Nonaktif</span>
+                                <kbd>Ctrl + Shift + H</kbd>
+                            </div>
+                            <div class="hotkey-item">
+                                <span>Pause Sementara</span>
+                                <kbd>Ctrl + Space</kbd>
+                            </div>
+                            <div class="hotkey-item">
+                                <span>Kalibrasi Cepat</span>
+                                <kbd>Ctrl + Alt + C</kbd>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="system">
+                        <div class="system-settings">
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked>
+                                <span>Mulai dengan Windows</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox">
+                                <span>Minimize ke System Tray</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked>
+                                <span>Notifikasi Desktop</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox">
+                                <span>Log Aktivitas</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Deployment Guide -->
+            <section class="deployment-section card">
+                <div class="card__header">
+                    <h3>🚀 Panduan Deployment Desktop App</h3>
+                    <div class="deployment-status">
+                        <span class="status status--info">Siap untuk Deploy</span>
+                    </div>
+                </div>
+                <div class="card__body">
+                    <div class="deployment-options" id="deploymentOptions">
+                        <!-- Deployment options will be populated by JavaScript -->
+                    </div>
+                    
+                    <div class="deployment-steps">
+                        <h4>Langkah-langkah Membuat Aplikasi Desktop:</h4>
+                        <ol class="steps-list">
+                            <li>
+                                <strong>Persiapan Environment</strong>
+                                <code>pip install pyinstaller mediapipe pyautogui opencv-python</code>
+                            </li>
+                            <li>
+                                <strong>Build Executable</strong>
+                                <code>pyinstaller --onefile --windowed --add-data "assets;assets" --name "HandCursorPro" main.py</code>
+                            </li>
+                            <li>
+                                <strong>Konfigurasi Permissions</strong>
+                                <p>Pastikan aplikasi memiliki izin akses kamera dan kontrol sistem</p>
+                            </li>
+                            <li>
+                                <strong>Testing & Distribution</strong>
+                                <p>Test pada berbagai sistem dan buat installer untuk distribusi</p>
+                            </li>
+                        </ol>
+                        
+                        <div class="deployment-actions">
+                            <button class="btn btn--primary" id="generateExecutable">📦 Generate Executable</button>
+                            <button class="btn btn--secondary" id="copyBuildScript">📋 Copy Build Script</button>
+                            <button class="btn btn--outline" id="openDocs" onclick="window.open('#', '_blank')">📖 Dokumentasi Lengkap</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

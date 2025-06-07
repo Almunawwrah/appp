@@ -1,0 +1,48 @@
+{
+  "name": "cammouse-pro-desktop",
+  "version": "2.1.0",
+  "description": "System-wide cursor control using camera gestures",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never"
+  },
+  "author": "AI Assistant",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "@mediapipe/hands": "^0.4.1675469404",
+    "@mediapipe/camera_utils": "^0.3.1675466862",
+    "@mediapipe/drawing_utils": "^0.3.1620248257",
+    "robotjs": "^0.6.0"
+  },
+  "build": {
+    "appId": "com.cammouse.pro",
+    "productName": "CamMouse Pro",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules",
+      "!src",
+      "!docs"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    }
+  }
+}
